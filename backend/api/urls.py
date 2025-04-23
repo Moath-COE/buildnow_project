@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
     path('subscriptions', views.subscriptionList, name='get_subs'),
     path('subscriptions/<int:id>', views.deleteSubscription, name='Delete Subscription'),
-    path('total_monthly', views.getTotalMonthly, name='Get Monthly Spends'),
-    path('total_yearly', views.getTotalYearly, name='Get Yearly Spends')
+    path('total', views.getTotal, name='Get Monthly Spends'),
+    path('total/monthly', views.getTotalMonthly, name='Get Monthly Spends'),
+    path('total/yearly', views.getTotalYearly, name='Get Yearly Spends')
 ]

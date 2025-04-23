@@ -37,14 +37,20 @@ def deleteSubscription(reauest, id):
         return Response('There is no subscription with this id', status=status.HTTP_404_NOT_FOUND)
     
 
+# Get total spends
+@api_view(['GET'])
+def getTotal(request):
+    data = Subscriptions.objects.all().aggregate(Sum("total_spent", default=0))
+    return Response(data)  
+
 # Get total spends per month
 @api_view(['GET'])
 def getTotalMonthly(request):
-    data = Subscriptions.objects.filter(cycle='mn').aggregate(Sum("price", default=0))
+    data = Subscriptions.objects.filter(cycle='mn').aggregate(Sum("total_spent", default=0))
     return Response(data)
 
 # Get total spends per year
 @api_view(['GET'])
 def getTotalYearly(request):
-    data = Subscriptions.objects.filter(cycle='yr').aggregate(Sum("price", default=0))
+    data = Subscriptions.objects.filter(cycle='yr').aggregate(Sum("total_spent", default=0))
     return Response(data)
