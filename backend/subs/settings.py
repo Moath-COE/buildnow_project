@@ -61,7 +61,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     'http://127.0.0.1:8000',
-    'https://buildnow-project-frontend.vercel.app/'
+    'https://buildnow-project-frontend.vercel.app'
 ]
 
 
