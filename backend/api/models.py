@@ -10,9 +10,9 @@ CYCLES = {
 }
 
 CATEGORIES = {
-    'ent': 'Entertainment',
-    'wrk': "Work",
-    'grc': "Groceries"
+    'Entertainment': 'Entertainment',
+    'Work': "Work",
+    'Groceries': "Groceries"
 }
 
 # Create your models here.
@@ -21,13 +21,13 @@ class Subscriptions(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     cycle = models.CharField(max_length=3, choices=CYCLES)
     start_date = models.DateField(default=date.today())
-    category = models.CharField(max_length=3, choices=CATEGORIES)
+    category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True, null=True)
-    total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
     next_payment = models.DateField(editable=False, null=True, blank=True)
+    total_spends = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
 
     @property
-    def calculate_total_spent(self):
+    def calculate_total_spends(self):
         today = timezone.now().date()
         days_diff = (today - self.start_date).days
         
@@ -44,7 +44,7 @@ class Subscriptions(models.Model):
     
 
     @property
-    def next_payment_date(self):
+    def calculate_next_payment(self):
         """Calculate the next payment date based on subscription cycle"""
         today = timezone.now().date()
         
@@ -67,8 +67,8 @@ class Subscriptions(models.Model):
         return None
 
     def save(self, *args, **kwargs):
-        self.total_spent = self.calculate_total_spent
-        self.next_payment = self.next_payment_date
+        self.total_spent = self.calculate_total_spends
+        self.next_payment = self.calculate_next_payment
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from rest_framework import status
+from decimal import Decimal
 from django.db.models import Sum
-
 
 # Create your views here.
 
@@ -15,6 +15,10 @@ from django.db.models import Sum
 def subscriptionList(request):
     if request.method == 'GET':
         subs = Subscriptions.objects.all()
+        # for sub in subs:
+        #     sub.next_payment = sub.calculate_next_payment
+        #     sub.total_spends = sub.calculate_total_spends
+        #     sub.save(update_fields=['next_payment', 'total_spends'])
         serializer = SubscriptionSerializer(subs, many=True)
         return Response(serializer.data)
     elif  request.method == 'POST':
@@ -40,17 +44,27 @@ def deleteSubscription(reauest, id):
 # Get total spends
 @api_view(['GET'])
 def getTotal(request):
-    data = Subscriptions.objects.all().aggregate(Sum("total_spent", default=0))
-    return Response(data)  
+    # subs = Subscriptions.objects.all()
+    # totalSpends = Decimal('0.00')
+    # for sub in subs:
+    #     totalSpends += sub.calculate_total_spends
+    data = Subscriptions.objects.all().aggregate(Sum("total_spends", default=0))
+    return Response(data['total_spends__sum'])  
 
-# Get total spends per month
-@api_view(['GET'])
-def getTotalMonthly(request):
-    data = Subscriptions.objects.filter(cycle='mn').aggregate(Sum("total_spent", default=0))
-    return Response(data)
+# # Get total spends per month
+# @api_view(['GET'])
+# def getTotalMonthly(request):
+#     subs = Subscriptions.objects.filter(cycle='mn')
+#     monthlySpends = Decimal('0.00')
+#     for sub in subs:
+#         monthlySpends += sub.calculate_total_spends
+#     return Response(monthlySpends)  
 
-# Get total spends per year
-@api_view(['GET'])
-def getTotalYearly(request):
-    data = Subscriptions.objects.filter(cycle='yr').aggregate(Sum("total_spent", default=0))
-    return Response(data)
+# # Get total spends per year
+# @api_view(['GET'])
+# def getTotalYearly(request):
+#     subs = Subscriptions.objects.filter(cycle='mn')
+#     yearlySpends = Decimal('0.00')
+#     for sub in subs:
+#         yearlySpends += sub.calculate_total_spends
+#     return Response(yearlySpends)  
