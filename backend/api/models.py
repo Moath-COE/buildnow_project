@@ -33,12 +33,14 @@ class Subscriptions(models.Model):
         
         if days_diff <= 0:
             return Decimal('0.00')
+        elif self.start_date == today:
+            return self.price
             
         if self.cycle == 'mn':
-            months = (today.year - self.start_date.year) * 12 + ((today.month - self.start_date.month) + 1)
+            months = (today.year - self.start_date.year) * 12 + (today.month - self.start_date.month)
             return self.price * max(months, 0)
         elif self.cycle == 'yr':
-            years = (today.year - self.start_date.year + 1)
+            years = today.year - self.start_date.year 
             return self.price * max(years, 0)
         return Decimal('0.00')
     
@@ -67,7 +69,7 @@ class Subscriptions(models.Model):
         return None
 
     def save(self, *args, **kwargs):
-        self.total_spent = self.calculate_total_spends
+        self.total_spends = self.calculate_total_spends
         self.next_payment = self.calculate_next_payment
         super().save(*args, **kwargs)
 
