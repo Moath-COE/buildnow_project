@@ -10,9 +10,9 @@ CYCLES = {
 }
 
 CATEGORIES = {
-    'ent': 'Entertainment',
-    'wrk': "Work",
-    'grc': "Groceries"
+    'Entertainment': 'Entertainment',
+    'Work': "Work",
+    'Groceries': "Groceries"
 }
 
 # Create your models here.
@@ -21,30 +21,32 @@ class Subscriptions(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     cycle = models.CharField(max_length=3, choices=CYCLES)
     start_date = models.DateField(default=date.today())
-    category = models.CharField(max_length=3, choices=CATEGORIES)
+    category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True, null=True)
-    total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
     next_payment = models.DateField(editable=False, null=True, blank=True)
+    total_spends = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
 
     @property
-    def calculate_total_spent(self):
+    def calculate_total_spends(self):
         today = timezone.now().date()
         days_diff = (today - self.start_date).days
         
         if days_diff <= 0:
             return Decimal('0.00')
+        elif self.start_date == today:
+            return self.price
             
         if self.cycle == 'mn':
-            months = (today.year - self.start_date.year) * 12 + ((today.month - self.start_date.month) + 1)
+            months = (today.year - self.start_date.year) * 12 + (today.month - self.start_date.month)
             return self.price * max(months, 0)
         elif self.cycle == 'yr':
-            years = (today.year - self.start_date.year + 1)
+            years = today.year - self.start_date.year 
             return self.price * max(years, 0)
         return Decimal('0.00')
     
 
     @property
-    def next_payment_date(self):
+    def calculate_next_payment(self):
         """Calculate the next payment date based on subscription cycle"""
         today = timezone.now().date()
         
@@ -67,8 +69,8 @@ class Subscriptions(models.Model):
         return None
 
     def save(self, *args, **kwargs):
-        self.total_spent = self.calculate_total_spent
-        self.next_payment = self.next_payment_date
+        self.total_spends = self.calculate_total_spends
+        self.next_payment = self.calculate_next_payment
         super().save(*args, **kwargs)
 
     def __str__(self):
